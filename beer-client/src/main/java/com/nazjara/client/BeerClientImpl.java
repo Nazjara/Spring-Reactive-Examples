@@ -1,13 +1,22 @@
 package com.nazjara.client;
 
+import com.nazjara.configuration.WebClientProperties;
 import com.nazjara.domain.BeerDto;
 import com.nazjara.domain.BeerPagedList;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.UUID;
 
+@Service
+@RequiredArgsConstructor
 public class BeerClientImpl implements BeerClient {
+
+    private final WebClient webClient;
 
     @Override
     public Mono<BeerDto> getBeerById(UUID id, boolean showInventoryOnHand) {
@@ -15,8 +24,19 @@ public class BeerClientImpl implements BeerClient {
     }
 
     @Override
-    public Mono<BeerPagedList> listBeers(int pageNumber, int pageSize, String beerName, String beerStyle, boolean showInventoryOnHand) {
-        return null;
+    public Mono<BeerPagedList> listBeers(Integer pageNumber, Integer pageSize, String beerName, String beerStyle,
+                                         Boolean showInventoryOnHand) {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(WebClientProperties.BEER_V1_PATH)
+                        .queryParamIfPresent("pageNumber", Optional.ofNullable(pageNumber))
+                        .queryParamIfPresent("pageSize", Optional.ofNullable(pageSize))
+                        .queryParamIfPresent("beerName", Optional.ofNullable(beerName))
+                        .queryParamIfPresent("beerStyle", Optional.ofNullable(beerStyle))
+                        .queryParamIfPresent("showInventoryOnHand", Optional.ofNullable(showInventoryOnHand))
+                        .build())
+                .retrieve()
+                .bodyToMono(BeerPagedList.class);
     }
 
     @Override
