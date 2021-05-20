@@ -3,14 +3,14 @@ package com.nazjara.services;
 import com.nazjara.dto.BeerDto;
 import com.nazjara.dto.BeerPagedList;
 import com.nazjara.dto.BeerStyleEnum;
-import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
+import reactor.core.publisher.Mono;
 
 public interface BeerService {
-    BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest, Boolean showInventoryOnHand);
-    BeerDto getById(UUID beerId, Boolean showInventoryOnHand);
-    BeerDto saveNewBeer(BeerDto beerDto);
-    BeerDto updateBeer(UUID beerId, BeerDto beerDto);
-    BeerDto getByUpc(String upc);
-    void deleteBeerById(UUID beerId);
+    Mono<BeerPagedList> listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest, Boolean showInventoryOnHand);
+    Mono<BeerDto> getById(Integer beerId, Boolean showInventoryOnHand);
+    Mono<BeerDto> saveNewBeer(BeerDto beerDto);
+    Mono<BeerDto> updateBeer(Integer beerId, BeerDto beerDto);
+    Mono<BeerDto> getByUpc(String upc);
+    void deleteBeerById(Integer beerId);
 }
