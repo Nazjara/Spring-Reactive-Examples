@@ -1,5 +1,6 @@
 package com.nazjara.services;
 
+import com.nazjara.controller.NotFoundException;
 import com.nazjara.domain.Beer;
 import com.nazjara.dto.BeerDto;
 import com.nazjara.dto.BeerPagedList;
@@ -73,6 +74,13 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
+    public Mono<BeerDto> saveNewBeer(Mono<BeerDto> beerDto) {
+        return beerDto.map(beerMapper::beerDtoToBeer)
+                .flatMap(beerRepository::save)
+                .map(beerMapper::beerToBeerDto);
+    }
+
+    @Override
     public Mono<BeerDto> updateBeer(Integer beerId, BeerDto beerDto) {
         return beerRepository.findById(beerId)
                 .defaultIfEmpty(Beer.builder().build())
@@ -99,5 +107,12 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public void deleteBeerById(Integer beerId) {
         beerRepository.deleteById(beerId).subscribe();
+    }
+
+    @Override
+    public Mono<Void> deleteBeerByIdReactive(Integer beerId) {
+        return beerRepository.findById(beerId)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(beer -> beerRepository.deleteById(beer.getId()));
     }
 }
